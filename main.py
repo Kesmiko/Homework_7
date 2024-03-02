@@ -1,4 +1,4 @@
-from HW_6 import AddressBook, Record
+from Classes import AddressBook, Record
 
 def input_error(func):
     def inner(*args, **kwargs):
@@ -15,36 +15,12 @@ def input_error(func):
 
     return inner
 
-
-
 @input_error
 def parse_input(user_input):
     cmd, *args = user_input.split()
     cmd = cmd.strip().lower()
     return cmd, *args
-
-@input_error
-def add_birthday(args, book: AddressBook):
-    name, birthday = args
-    record = book.find(name)
-    if not record:
-        record = Record(name)
-        book.add_record(record)
-
-        record.add_birthday = (birthday)
-        return "Birthday added"
-@input_error
-def show_birthday(args, book: AddressBook):
-    name = args[0]
-    record = book.find(name)
-    if not record:
-        return "No such name found"
-    return record.birthdays
-        
-@input_error
-def birthdays(args, book: AddressBook):
-    return book.get_upcoming_birthdays()
-
+    
 @input_error
 def add_contact(args, book: AddressBook):
     name, phone = args
@@ -57,6 +33,21 @@ def add_contact(args, book: AddressBook):
     return "Contact added"
 
 @input_error
+def add_birthday(args, book: AddressBook):
+    name, birthday = args
+    record = book.find(name)
+    if not record:
+        record = Record(name)
+        book.add_record(record)
+
+    record.add_birthday = (birthday)
+    return "Birthday added"
+        
+@input_error
+def birthdays(args, book: AddressBook):
+    return book.get_upcoming_birthdays()
+
+@input_error
 def change_contact(args, book):
     name, old_phone, new_phone = args
     record = book.find(name)
@@ -66,9 +57,16 @@ def change_contact(args, book):
     return "Phone changed"
         
 @input_error
-def show_phone(args, contacts):
+def show_birthday(args, book: AddressBook):
     name = args[0]
-    record = contacts.find(name)
+    record = book.find(name)
+    if not record:
+        return "No such name found"
+    return record.birthday
+@input_error
+def show_phone(args, book):
+    name = args[0]
+    record = book.find(name)
     if not record:
         return "No such name found"
     return '; '.join(str(phone) for phone in record.phones)
@@ -77,24 +75,10 @@ def show_phone(args, contacts):
 def show_all(args,book):
     return book
 
-@input_error
-def add_birthday(args, book):
-    name, birthday = args
-    book.find(name).birthday = birthday
-    return "Birthday added."
-
-@input_error
-def show_birthday(args, book):
-    name = args[0]
-    birth = book.get(name)
-    return birth
-
-def birthdays(book):
-    return book.get_upcoming_birthdays()
 def main():
     book = AddressBook()
     print("Welcome to the assistant bot!")
-    commands = ["hello", "add", "change", "phone", "all", "close", "exit"]
+    commands = ["hello", "add", "change", "phone", "all", "birthdays", "add-birthdays", "show_birthday"]
     while True:
         user_input = input(f"Enter a command ({commands}): \n>>> ")
         command, *args = parse_input(user_input)
