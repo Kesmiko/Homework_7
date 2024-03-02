@@ -49,7 +49,7 @@ class Name(Field):
 
 class Phone(Field):
     def is_valid(self, value):
-        return value.isdigits() and len(value) == 10
+        return value.isdigit() and len(value) == 10
 
 class Record:
     def __init__(self, name):
@@ -57,7 +57,7 @@ class Record:
         self.phones = []
         self.birthday = None
 
-    def add_birthday(self, birthday: str):
+    def add_birthday(self, birthday):
         self.birthday = Birthday(birthday)
 
     def add_phone(self, phone):
@@ -93,24 +93,25 @@ class AddressBook(UserDict):
         if name in self.data:
             del self.data[name]
 
-    def get_upcoming_birthdays(users=None):
+    def get_upcoming_birthdays(self):
         today_date = dtdt.today().date()
         birthdays = [] 
-        for user in users: 
-            birthday_date = user["birthday"] 
-            birthday_date = str(today_date.year) + birthday_date[4:] 
-            birthday_date = dtdt.strptime(birthday_date, "%Y.%m.%d").date() 
-            week_day = birthday_date.isoweekday() 
-            days_between= (birthday_date - today_date).days 
-            if 0 <= days_between < 7: 
-                if week_day < 6: 
-                    birthdays.append({'name':user['name'], 'congratulation_date':birthday_date.strftime("%Y.%m.%d")}) 
-                else:
-                    if (birthday_date + dt.timedelta(days = 1)).weekday() == 0:
-                        birthdays.append({'name':user['name'], 'congratulation_date':(birthday_date + dt.timedelta(days = 1)).strftime("%Y.%m.%d")})
-                    elif (birthday_date+dt.timedelta(days = 2)).weekday() == 0: 
-                        birthdays.append({'name':user['name'], 'congratulation_date':(birthday_date + dt.timedelta(days = 2)).strftime("%Y.%m.%d")})
+        for record in self.data.values(): 
+            if record.birthday is not None:
+                birthday_date = record.birthday.value
+                birthday_date = dt.date(today_date.year, birthday_date.month, birthday_date.day)
+                week_day = birthday_date.isoweekday() 
+                days_between = (birthday_date - today_date).days 
+                if 0 <= days_between < 7: 
+                    if week_day < 6: 
+                        birthdays.append({'name': record.name.value, 'congratulation_date': birthday_date.strftime("%Y.%m.%d")}) 
+                    else:
+                        if (birthday_date + dt.timedelta(days=1)).weekday() == 0:
+                            birthdays.append({'name': record.name.value, 'congratulation_date': (birthday_date + dt.timedelta(days=1)).strftime("%Y.%m.%d")})
+                        elif (birthday_date + dt.timedelta(days=2)).weekday() == 0: 
+                            birthdays.append({'name': record.name.value, 'congratulation_date': (birthday_date + dt.timedelta(days=2)).strftime("%Y.%m.%d")})
         return birthdays
 
     def __str__(self) -> str:
         return "\n".join(str(record) for record in self.data.values())
+
